@@ -61,7 +61,7 @@ let
 
   # libcommon - foundation library
   libcommon = project.staticLib {
-    name = "slurm-common";
+    name = "libslurm-common";
     sources = sources.libcommon;
     includeDirs = [ "src/common" ];
     linkFlags = [ "-lpthread" "-ldl" "-lm" "-lresolv" ];
@@ -70,7 +70,7 @@ let
 
   # libconmgr - connection manager
   libconmgr = project.staticLib {
-    name = "slurm-conmgr";
+    name = "libslurm-conmgr";
     sources = sources.libconmgr;
     includeDirs = [ "src/conmgr" ];
     libraries = [ libcommon ];
@@ -78,7 +78,7 @@ let
 
   # libcommon_interfaces - plugin interfaces
   libcommonInterfaces = project.staticLib {
-    name = "slurm-interfaces";
+    name = "libslurm-interfaces";
     sources = sources.libcommonInterfaces;
     includeDirs = [ "src/interfaces" ];
     libraries = [ libcommon libconmgr ];
@@ -86,7 +86,7 @@ let
 
   # libslurm - public API shared library
   libslurm = project.sharedLib {
-    name = "slurm";
+    name = "libslurm";
     sources = sources.libslurm;
     includeDirs = [ "src/api" ];
     libraries = [ libcommonInterfaces libconmgr libcommon ];
@@ -155,35 +155,35 @@ let
   # ==========================================================================
 
   libslurmdCommon = project.staticLib {
-    name = "slurmd-common";
+    name = "libslurmd-common";
     sources = sources.libslurmdCommon;
     includeDirs = [ "src/slurmd/common" "src/slurmd" ];
     libraries = [ libcommonInterfaces libconmgr libcommon ];
   };
 
   libfileBcast = project.staticLib {
-    name = "file-bcast";
+    name = "libfile-bcast";
     sources = sources.libfileBcast;
     includeDirs = [ "src/bcast" ];
     libraries = [ lz4Lib libcommon ];
   };
 
   libslurmdInterfaces = project.staticLib {
-    name = "slurmd-interfaces";
+    name = "libslurmd-interfaces";
     sources = sources.libslurmdInterfaces;
     includeDirs = [ "src/interfaces" ];
     libraries = [ libcommonInterfaces libconmgr libcommon ];
   };
 
   libslurmctldInterfaces = project.staticLib {
-    name = "slurmctld-interfaces";
+    name = "libslurmctld-interfaces";
     sources = sources.libslurmctldInterfaces;
     includeDirs = [ "src/interfaces" ];
     libraries = [ libcommonInterfaces libconmgr libcommon ];
   };
 
   libstepmgr = project.staticLib {
-    name = "stepmgr";
+    name = "libstepmgr";
     sources = sources.libstepmgr;
     includeDirs = [ "src/stepmgr" ];
     libraries = [ libcommonInterfaces libconmgr libcommon ];
