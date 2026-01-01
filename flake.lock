@@ -354,8 +354,8 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1767065731,
-        "narHash": "sha256-L5wnC2GPU33/tCZVw/cusyaAodJxQp54big8zQmgyPw=",
+        "lastModified": 1767245253,
+        "narHash": "sha256-rpau8LVlMnAs0ROyeVogP3UGckphjtTCBP52jCkvan4=",
         "path": "/home/tom/git/nixnative",
         "type": "path"
       },
