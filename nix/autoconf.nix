@@ -275,15 +275,13 @@ let
   globalDefaultsCDir = pkgs.writeTextDir "global_defaults.c" globalDefaultsCContent;
 
 in {
-  # Nixnative Tool interface - provides headers, sources, and include dirs
+  # Nixnative Tool interface - provides outputs and include dirs
   tool = {
     name = "slurm-autoconf";
-    headers = [
-      { rel = "config.h"; store = "${configHDir}/config.h"; }
-      { rel = "slurm/slurm_version.h"; store = "${slurmVersionHDir}/slurm/slurm_version.h"; }
-    ];
-    sources = [
-      { rel = "global_defaults.c"; store = "${globalDefaultsCDir}/global_defaults.c"; }
+    outputs = [
+      { rel = "config.h"; path = "${configHDir}/config.h"; }
+      { rel = "slurm/slurm_version.h"; path = "${slurmVersionHDir}/slurm/slurm_version.h"; }
+      { rel = "global_defaults.c"; path = "${globalDefaultsCDir}/global_defaults.c"; }
     ];
     includeDirs = [
       { path = configHDir; }
