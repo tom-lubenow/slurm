@@ -1,14 +1,17 @@
 # Slurm nixnative build definitions
+#
+# Uses native.project for scoped defaults and direct target references.
 { pkgs, native, lib }:
 
 let
   sources = import ./sources.nix { inherit lib; };
-
-  # Root directory is the parent (slurm repo root)
   root = ./..;
-
-  # Import autoconf tool (generates config.h, slurm_version.h, global_defaults.c)
   autoconf = import ./autoconf.nix { inherit pkgs lib root; };
+  sourceFiles = builtins.mapAttrs (_: patterns:
+    native.utils.discoverSources {
+      inherit root patterns;
+    }
+  ) sources;
 
   # ==========================================================================
   # External Dependencies
@@ -20,74 +23,59 @@ let
     modules = [ "liblz4" ];
   };
 
+  # Helper for binary blob embedding
+  mkBinaryBlob = dir: files:
+    native.tools.binaryBlob.run {
+      inherit root;
+      inputFiles = map (f: "${dir}/${f}") files;
+    };
+
   # ==========================================================================
   # Project with Shared Defaults
   # ==========================================================================
 
-  project = native.mkProject {
+  slurm = native.project {
     inherit root;
-
-    defaults = {
-      # Common include directories
-      includeDirs = [
-        "."             # Root for src/common/* includes
-        "src"           # For slurm/* headers
-      ];
-
-      # Common defines
-      defines = [
-        "HAVE_CONFIG_H"
-        "_GNU_SOURCE"
-      ];
-
-      # Common compile flags
-      compileFlags = [
-        "-fPIC"                      # Required for linking static libs into shared lib
-        "-Wno-unused-parameter"      # Slurm has many unused params
-        "-Wno-sign-compare"          # Common in Slurm code
-      ];
-
-      # C language standard
-      languageFlags = { c = [ "-std=gnu11" ]; };
-
-      # Autoconf tool for all targets
-      tools = [ autoconf.tool ];
-    };
+    includeDirs = [ "." "src" ];
+    defines = [ "HAVE_CONFIG_H" "_GNU_SOURCE" ];
+    compileFlags = [
+      "-fPIC"
+      "-Wno-unused-parameter"
+      "-Wno-sign-compare"
+    ];
+    languageFlags = { c = [ "-std=gnu11" ]; };
+    tools = [ autoconf.tool ];
   };
 
   # ==========================================================================
-  # Libraries
+  # Core Libraries
   # ==========================================================================
 
-  # libcommon - foundation library
-  libcommon = project.staticLib {
+  libcommon = slurm.staticLib {
     name = "libslurm-common";
-    sources = sources.libcommon;
+    sources = sourceFiles.libcommon;
     includeDirs = [ "src/common" ];
     linkFlags = [ "-lpthread" "-ldl" "-lm" "-lresolv" ];
     publicIncludeDirs = [ "src" ];
   };
 
-  # libconmgr - connection manager
-  libconmgr = project.staticLib {
+  libconmgr = slurm.staticLib {
     name = "libslurm-conmgr";
-    sources = sources.libconmgr;
+    sources = sourceFiles.libconmgr;
     includeDirs = [ "src/conmgr" ];
     libraries = [ libcommon ];
   };
 
-  # libcommon_interfaces - plugin interfaces
-  libcommonInterfaces = project.staticLib {
+  libcommonInterfaces = slurm.staticLib {
     name = "libslurm-interfaces";
-    sources = sources.libcommonInterfaces;
+    sources = sourceFiles.libcommonInterfaces;
     includeDirs = [ "src/interfaces" ];
     libraries = [ libcommon libconmgr ];
   };
 
-  # libslurm - public API shared library
-  libslurm = project.sharedLib {
+  libslurm = slurm.sharedLib {
     name = "libslurm";
-    sources = sources.libslurm;
+    sources = sourceFiles.libslurm;
     includeDirs = [ "src/api" ];
     libraries = [ libcommonInterfaces libconmgr libcommon ];
     linkFlags = [ "-lpthread" "-ldl" "-lm" "-lresolv" ];
@@ -97,56 +85,44 @@ let
   # CLI Tools
   # ==========================================================================
 
+  # Common settings for all CLI tools
   cliLibraries = [ libslurm libcommonInterfaces libconmgr libcommon ];
   cliLinkFlags = [ "-lpthread" "-ldl" "-lm" "-lresolv" ];
 
-  # Helper to create binary blob tool for embedding help/usage text
-  mkBinaryBlob = dir: files:
-    native.tools.binaryBlob.run {
-      inherit root;
-      inputFiles = map (f: "${dir}/${f}") files;
+  mkCli = { name, sources, tools ? [], includeDirs ? [] }:
+    slurm.executable {
+      inherit name sources;
+      includeDirs = [ "src/${name}" ] ++ includeDirs;
+      libraries = cliLibraries;
+      linkFlags = cliLinkFlags;
+      inherit tools;
     };
 
-  sinfo = project.executable {
+  sinfo = mkCli {
     name = "sinfo";
-    sources = sources.sinfo;
-    includeDirs = [ "src/sinfo" ];
-    libraries = cliLibraries;
-    linkFlags = cliLinkFlags;
+    sources = sourceFiles.sinfo;
     tools = [ (mkBinaryBlob "src/sinfo" [ "help.txt" "usage.txt" ]) ];
   };
 
-  squeue = project.executable {
+  squeue = mkCli {
     name = "squeue";
-    sources = sources.squeue;
-    includeDirs = [ "src/squeue" ];
-    libraries = cliLibraries;
-    linkFlags = cliLinkFlags;
+    sources = sourceFiles.squeue;
     tools = [ (mkBinaryBlob "src/squeue" [ "help.txt" "usage.txt" ]) ];
   };
 
-  scancel = project.executable {
+  scancel = mkCli {
     name = "scancel";
-    sources = sources.scancel;
-    includeDirs = [ "src/scancel" ];
-    libraries = cliLibraries;
-    linkFlags = cliLinkFlags;
+    sources = sourceFiles.scancel;
   };
 
-  sbatch = project.executable {
+  sbatch = mkCli {
     name = "sbatch";
-    sources = sources.sbatch;
-    includeDirs = [ "src/sbatch" ];
-    libraries = cliLibraries;
-    linkFlags = cliLinkFlags;
+    sources = sourceFiles.sbatch;
   };
 
-  scontrol = project.executable {
+  scontrol = mkCli {
     name = "scontrol";
-    sources = sources.scontrol;
-    includeDirs = [ "src/scontrol" ];
-    libraries = cliLibraries;
-    linkFlags = cliLinkFlags;
+    sources = sourceFiles.scontrol;
     tools = [ (mkBinaryBlob "src/scontrol" [ "usage.txt" ]) ];
   };
 
@@ -154,37 +130,37 @@ let
   # Daemon Libraries
   # ==========================================================================
 
-  libslurmdCommon = project.staticLib {
+  libslurmdCommon = slurm.staticLib {
     name = "libslurmd-common";
-    sources = sources.libslurmdCommon;
+    sources = sourceFiles.libslurmdCommon;
     includeDirs = [ "src/slurmd/common" "src/slurmd" ];
     libraries = [ libcommonInterfaces libconmgr libcommon ];
   };
 
-  libfileBcast = project.staticLib {
+  libfileBcast = slurm.staticLib {
     name = "libfile-bcast";
-    sources = sources.libfileBcast;
+    sources = sourceFiles.libfileBcast;
     includeDirs = [ "src/bcast" ];
     libraries = [ lz4Lib libcommon ];
   };
 
-  libslurmdInterfaces = project.staticLib {
+  libslurmdInterfaces = slurm.staticLib {
     name = "libslurmd-interfaces";
-    sources = sources.libslurmdInterfaces;
+    sources = sourceFiles.libslurmdInterfaces;
     includeDirs = [ "src/interfaces" ];
     libraries = [ libcommonInterfaces libconmgr libcommon ];
   };
 
-  libslurmctldInterfaces = project.staticLib {
+  libslurmctldInterfaces = slurm.staticLib {
     name = "libslurmctld-interfaces";
-    sources = sources.libslurmctldInterfaces;
+    sources = sourceFiles.libslurmctldInterfaces;
     includeDirs = [ "src/interfaces" ];
     libraries = [ libcommonInterfaces libconmgr libcommon ];
   };
 
-  libstepmgr = project.staticLib {
+  libstepmgr = slurm.staticLib {
     name = "libstepmgr";
-    sources = sources.libstepmgr;
+    sources = sourceFiles.libstepmgr;
     includeDirs = [ "src/stepmgr" ];
     libraries = [ libcommonInterfaces libconmgr libcommon ];
   };
@@ -193,29 +169,29 @@ let
   # Daemons
   # ==========================================================================
 
+  daemonLibraries = cliLibraries;
   daemonLinkFlags = [ "-lpthread" "-ldl" "-lm" "-lresolv" "-lrt" ];
-  daemonLibraries = [ libslurm libcommonInterfaces libconmgr libcommon ];
 
-  slurmd = project.executable {
+  slurmd = slurm.executable {
     name = "slurmd";
-    sources = sources.slurmd;
+    sources = sourceFiles.slurmd;
     includeDirs = [ "src/slurmd/slurmd" "src/slurmd" ];
     libraries = [ libfileBcast libslurmdCommon libslurmdInterfaces ] ++ daemonLibraries;
     linkFlags = daemonLinkFlags;
     tools = [ (mkBinaryBlob "src/slurmd/slurmd" [ "usage.txt" ]) ];
   };
 
-  slurmstepd = project.executable {
+  slurmstepd = slurm.executable {
     name = "slurmstepd";
-    sources = sources.slurmstepd;
+    sources = sourceFiles.slurmstepd;
     includeDirs = [ "src/slurmd/slurmstepd" "src/slurmd" ];
     libraries = [ libstepmgr libfileBcast libslurmdCommon libslurmdInterfaces ] ++ daemonLibraries;
     linkFlags = daemonLinkFlags;
   };
 
-  slurmctld = project.executable {
+  slurmctld = slurm.executable {
     name = "slurmctld";
-    sources = sources.slurmctld;
+    sources = sourceFiles.slurmctld;
     includeDirs = [ "src/slurmctld" ];
     libraries = [ libstepmgr libslurmctldInterfaces ] ++ daemonLibraries;
     linkFlags = daemonLinkFlags;
@@ -223,28 +199,35 @@ let
   };
 
   # ==========================================================================
-  # Combined package
+  # Combined Output
   # ==========================================================================
 
   all = pkgs.symlinkJoin {
     name = "slurm-all";
     paths = [
-      sinfo squeue scancel sbatch scontrol
-      slurmd slurmstepd slurmctld
+      sinfo.target
+      squeue.target
+      scancel.target
+      sbatch.target
+      scontrol.target
+      slurmd.target
+      slurmstepd.target
+      slurmctld.target
     ];
   };
 
 in {
   packages = {
-    inherit libcommon libconmgr libcommonInterfaces libslurm libfileBcast;
-    inherit sinfo squeue scancel sbatch scontrol;
-    inherit libslurmdCommon libslurmdInterfaces libslurmctldInterfaces libstepmgr;
-    inherit slurmd slurmstepd slurmctld;
-    inherit all;
+    inherit
+      libcommon libconmgr libcommonInterfaces libslurm
+      libslurmdCommon libfileBcast libslurmdInterfaces libslurmctldInterfaces libstepmgr
+      sinfo squeue scancel sbatch scontrol
+      slurmd slurmstepd slurmctld
+      all;
     default = all;
   };
 
-  devShell = native.devShell {
+  devShells.default = native.devShell {
     target = libcommon;
     extraPackages = [ pkgs.gdb ];
   };

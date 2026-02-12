@@ -250,6 +250,27 @@
       "inputs": {
         "nixpkgs-lib": [
           "nixnative",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1756146523,
+        "narHash": "sha256-dn8WNgwVQe0xBJ/d4CiRRcEVSgNclG6WSbqFEf6V024=",
+        "owner": "pdtpartners",
+        "repo": "globset",
+        "rev": "62da8904981f01dc7c97f56c3ea4f131a8393411",
+        "type": "github"
+      },
+      "original": {
+        "owner": "pdtpartners",
+        "repo": "globset",
+        "type": "github"
+      }
+    },
+    "globset_2": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "nixnative",
           "nix-ninja",
           "nixpkgs"
         ]
@@ -302,7 +323,7 @@
         "fenix": "fenix",
         "flake-compat": "flake-compat_2",
         "flake-parts": "flake-parts_2",
-        "globset": "globset",
+        "globset": "globset_2",
         "nix": "nix_2",
         "nixpkgs": [
           "nixnative",
@@ -349,13 +370,14 @@
     },
     "nixnative": {
       "inputs": {
+        "globset": "globset",
         "nix": "nix",
         "nix-ninja": "nix-ninja",
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1767302238,
-        "narHash": "sha256-4zjnE0iSEzo/4whksPejKxnnDav4LgDeNT8IW8cv8ug=",
+        "lastModified": 1770867386,
+        "narHash": "sha256-uFF21mmaK9+DfGr0kkQmwhPf1Q3OR5ORS74fGJxJiZI=",
         "path": "/home/tom/git/nixnative",
         "type": "path"
       },

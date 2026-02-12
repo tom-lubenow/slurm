@@ -35,6 +35,6 @@
       #   nix build .#sinfo --print-out-paths
       legacyPackages.${system} = native.mkLegacyPackages project.packages;
 
-      devShells.${system}.default = project.devShell;
+      devShells.${system}.default = project.devShells.default;
     };
 }
