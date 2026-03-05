@@ -81,6 +81,9 @@
   # File broadcast library (used by slurmd/slurmstepd)
   libfileBcast = [ "src/bcast/file_bcast.c" ];
 
+  # Lua integration library
+  libslurm_lua = [ "src/lua/slurm_lua.c" ];
+
   # Additional CLI tools
   sacct = [ "src/sacct/*.c" ];
   sacctmgr = [ "src/sacctmgr/*.c" ];
@@ -96,6 +99,7 @@
   sshare = [ "src/sshare/*.c" ];
   sstat = [ "src/sstat/*.c" ];
   strigger = [ "src/strigger/*.c" ];
+  scrun = [ "src/scrun/*.c" ];
 
   # Additional daemons
   slurmdbd = [ "src/slurmdbd/*.c" ];

@@ -23,6 +23,12 @@ let
     modules = [ "liblz4" ];
   };
 
+  luaLib = native.pkgConfig.makeLibrary {
+    name = "lua";
+    packages = [ pkgs.lua5_4 ];
+    modules = [ "lua5.4" ];
+  };
+
   # Helper for binary blob embedding
   mkBinaryBlob = dir: files:
     native.tools.binaryBlob.run {
@@ -191,6 +197,23 @@ let
     tools = [ (mkBinaryBlob "src/scrontab" [ "default_crontab.txt" "usage.txt" ]) ];
   };
 
+  # Lua integration library (used by scrun)
+  libslurm_lua = slurm.staticLib {
+    name = "libslurm-lua";
+    sources = sourceFiles.libslurm_lua;
+    includeDirs = [ "src/lua" "src/slurmctld" ];
+    libraries = [ luaLib libcommon ];
+  };
+
+  scrun = slurm.executable {
+    name = "scrun";
+    sources = sourceFiles.scrun;
+    includeDirs = [ "src/scrun" "src/slurmctld" ];
+    libraries = [ libslurm_lua luaLib ] ++ cliLibraries;
+    linkFlags = cliLinkFlags;
+    tools = [ (mkBinaryBlob "src/scrun" [ "usage.txt" ]) ];
+  };
+
   # sbcast and srun need libfileBcast
   sbcast = slurm.executable {
     name = "sbcast";
@@ -323,6 +346,7 @@ let
       sshare.target
       sstat.target
       strigger.target
+      scrun.target
       slurmd.target
       slurmstepd.target
       slurmctld.target
@@ -335,9 +359,9 @@ in {
   packages = {
     inherit
       libcommon libconmgr libcommonInterfaces libslurm
-      libslurmdCommon libfileBcast libslurmdInterfaces libslurmctldInterfaces libstepmgr
+      libslurmdCommon libfileBcast libslurmdInterfaces libslurmctldInterfaces libstepmgr libslurm_lua
       sinfo squeue scancel sbatch scontrol
-      sacct sacctmgr sackd salloc sattach sbcast scrontab sdiag sprio sreport srun sshare sstat strigger
+      sacct sacctmgr sackd salloc sattach sbcast scrontab scrun sdiag sprio sreport srun sshare sstat strigger
       slurmd slurmstepd slurmctld slurmdbd slurmrestd
       all;
     default = all;

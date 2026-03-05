@@ -206,7 +206,8 @@ let
     #define HAVE_PTRACE 1
     /* #undef HAVE_PTRACE_FIVE_ARGS */
 
-    /* Disable optional features for minimal build */
+    /* Optional feature flags */
+    #define HAVE_LUA 1
     /* #undef HAVE_MUNGE */
     /* #undef HAVE_JSON */
     /* #undef HAVE_JSON_C_INC */
