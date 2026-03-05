@@ -376,11 +376,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1772693042,
-        "narHash": "sha256-KD8eLFE86dATP2vpqS+zlDN8i5b8qe0sFhR/lgdSZig=",
+        "lastModified": 1772693550,
+        "narHash": "sha256-uMsagdZ6FeseXNw6d0xRLlpdULAjj8KRzTzo46DQdv8=",
         "owner": "tom-lubenow",
         "repo": "nixnative",
-        "rev": "770178e2ae379502c2849fb359ce88306b7f99cc",
+        "rev": "0a6e9c6c5ffaea5047a5381efd7255aeef4b56cf",
         "type": "github"
       },
       "original": {
