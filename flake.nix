@@ -24,16 +24,7 @@
       );
     in {
       packages = forAllSystems ({ pkgs, native, project, ... }: {
-        default = native.mkBuildAllCheck pkgs "slurm" [
-          project.packages.sinfo
-          project.packages.squeue
-          project.packages.scancel
-          project.packages.sbatch
-          project.packages.scontrol
-          project.packages.slurmd
-          project.packages.slurmstepd
-          project.packages.slurmctld
-        ];
+        default = project.packages.all;
       });
 
       legacyPackages = forAllSystems ({ native, project, ... }:
