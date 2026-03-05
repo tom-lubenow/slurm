@@ -81,6 +81,32 @@
   # File broadcast library (used by slurmd/slurmstepd)
   libfileBcast = [ "src/bcast/file_bcast.c" ];
 
+  # Additional CLI tools
+  sacct = [ "src/sacct/*.c" ];
+  sacctmgr = [ "src/sacctmgr/*.c" ];
+  sackd = [ "src/sackd/*.c" ];
+  salloc = [ "src/salloc/*.c" ];
+  sattach = [ "src/sattach/*.c" ];
+  sbcast = [ "src/sbcast/*.c" ];
+  scrontab = [ "src/scrontab/*.c" ];
+  sdiag = [ "src/sdiag/*.c" ];
+  sprio = [ "src/sprio/*.c" ];
+  sreport = [ "src/sreport/*.c" ];
+  srun = [ "src/srun/*.c" ];
+  sshare = [ "src/sshare/*.c" ];
+  sstat = [ "src/sstat/*.c" ];
+  strigger = [ "src/strigger/*.c" ];
+
+  # Additional daemons
+  slurmdbd = [ "src/slurmdbd/*.c" ];
+  slurmrestd = [
+    "src/slurmrestd/http.c"
+    "src/slurmrestd/operations.c"
+    "src/slurmrestd/slurmrestd.c"
+    "src/slurmrestd/openapi.c"
+    "src/slurmrestd/rest_auth.c"
+  ];
+
   # Daemons
   slurmd = [ "src/slurmd/slurmd/*.c" ];
   slurmstepd = [ "src/slurmd/slurmstepd/*.c" ];

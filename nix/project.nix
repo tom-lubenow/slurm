@@ -126,6 +126,88 @@ let
     tools = [ (mkBinaryBlob "src/scontrol" [ "usage.txt" ]) ];
   };
 
+  sacct = mkCli {
+    name = "sacct";
+    sources = sourceFiles.sacct;
+    tools = [ (mkBinaryBlob "src/sacct" [ "help.txt" ]) ];
+  };
+
+  sacctmgr = mkCli {
+    name = "sacctmgr";
+    sources = sourceFiles.sacctmgr;
+    tools = [ (mkBinaryBlob "src/sacctmgr" [ "usage.txt" ]) ];
+  };
+
+  sackd = mkCli {
+    name = "sackd";
+    sources = sourceFiles.sackd;
+    tools = [ (mkBinaryBlob "src/sackd" [ "usage.txt" ]) ];
+  };
+
+  salloc = mkCli {
+    name = "salloc";
+    sources = sourceFiles.salloc;
+  };
+
+  sattach = mkCli {
+    name = "sattach";
+    sources = sourceFiles.sattach;
+  };
+
+  sdiag = mkCli {
+    name = "sdiag";
+    sources = sourceFiles.sdiag;
+  };
+
+  sprio = mkCli {
+    name = "sprio";
+    sources = sourceFiles.sprio;
+    tools = [ (mkBinaryBlob "src/sprio" [ "help.txt" "usage.txt" ]) ];
+  };
+
+  sreport = mkCli {
+    name = "sreport";
+    sources = sourceFiles.sreport;
+  };
+
+  sshare = mkCli {
+    name = "sshare";
+    sources = sourceFiles.sshare;
+  };
+
+  sstat = mkCli {
+    name = "sstat";
+    sources = sourceFiles.sstat;
+  };
+
+  strigger = mkCli {
+    name = "strigger";
+    sources = sourceFiles.strigger;
+  };
+
+  scrontab = mkCli {
+    name = "scrontab";
+    sources = sourceFiles.scrontab;
+    tools = [ (mkBinaryBlob "src/scrontab" [ "default_crontab.txt" "usage.txt" ]) ];
+  };
+
+  # sbcast and srun need libfileBcast
+  sbcast = slurm.executable {
+    name = "sbcast";
+    sources = sourceFiles.sbcast;
+    includeDirs = [ "src/sbcast" ];
+    libraries = [ libfileBcast ] ++ cliLibraries;
+    linkFlags = cliLinkFlags;
+  };
+
+  srun = slurm.executable {
+    name = "srun";
+    sources = sourceFiles.srun;
+    includeDirs = [ "src/srun" ];
+    libraries = [ libfileBcast ] ++ cliLibraries;
+    linkFlags = cliLinkFlags;
+  };
+
   # ==========================================================================
   # Daemon Libraries
   # ==========================================================================
@@ -198,6 +280,23 @@ let
     tools = [ (mkBinaryBlob "src/slurmctld" [ "usage.txt" ]) ];
   };
 
+  slurmdbd = slurm.executable {
+    name = "slurmdbd";
+    sources = sourceFiles.slurmdbd;
+    includeDirs = [ "src/slurmdbd" ];
+    libraries = daemonLibraries;
+    linkFlags = daemonLinkFlags;
+  };
+
+  slurmrestd = slurm.executable {
+    name = "slurmrestd";
+    sources = sourceFiles.slurmrestd;
+    includeDirs = [ "src/slurmrestd" ];
+    libraries = daemonLibraries;
+    linkFlags = daemonLinkFlags;
+    tools = [ (mkBinaryBlob "src/slurmrestd" [ "usage.txt" ]) ];
+  };
+
   # ==========================================================================
   # Combined Output
   # ==========================================================================
@@ -210,9 +309,25 @@ let
       scancel.target
       sbatch.target
       scontrol.target
+      sacct.target
+      sacctmgr.target
+      sackd.target
+      salloc.target
+      sattach.target
+      sbcast.target
+      scrontab.target
+      sdiag.target
+      sprio.target
+      sreport.target
+      srun.target
+      sshare.target
+      sstat.target
+      strigger.target
       slurmd.target
       slurmstepd.target
       slurmctld.target
+      slurmdbd.target
+      slurmrestd.target
     ];
   };
 
@@ -222,7 +337,8 @@ in {
       libcommon libconmgr libcommonInterfaces libslurm
       libslurmdCommon libfileBcast libslurmdInterfaces libslurmctldInterfaces libstepmgr
       sinfo squeue scancel sbatch scontrol
-      slurmd slurmstepd slurmctld
+      sacct sacctmgr sackd salloc sattach sbcast scrontab sdiag sprio sreport srun sshare sstat strigger
+      slurmd slurmstepd slurmctld slurmdbd slurmrestd
       all;
     default = all;
   };
