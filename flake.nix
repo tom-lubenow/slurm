@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixnative.url = "path:/home/tom/git/nixnative";
+    nixnative.url = "github:tom-lubenow/nixnative";
   };
 
   outputs = { self, nixpkgs, nixnative }:

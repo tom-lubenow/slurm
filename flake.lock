@@ -331,17 +331,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1766982151,
-        "narHash": "sha256-hjxygpY0VC+EuKUJzOX3muHDVHdOke1N2wmGWfHdiJ4=",
-        "ref": "refs/heads/main",
-        "rev": "06e6a826257dadbb94ebcff88781ead51fb979ef",
-        "revCount": 23,
-        "type": "git",
-        "url": "ssh://git@github.com/tom-lubenow/nix-ninja"
+        "lastModified": 1770907283,
+        "narHash": "sha256-U3dq54kXTGy5CZHrMafO4jzo4/Zzr/M4h7sKH6DJSQs=",
+        "owner": "tom-lubenow",
+        "repo": "nix-ninja",
+        "rev": "3dd6cdbb976e65a5292c9b15a3e7bb67e4352ee3",
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "ssh://git@github.com/tom-lubenow/nix-ninja"
+        "owner": "tom-lubenow",
+        "repo": "nix-ninja",
+        "type": "github"
       }
     },
     "nix_2": {
@@ -376,14 +376,17 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1770867386,
-        "narHash": "sha256-uFF21mmaK9+DfGr0kkQmwhPf1Q3OR5ORS74fGJxJiZI=",
-        "path": "/home/tom/git/nixnative",
-        "type": "path"
+        "lastModified": 1772673509,
+        "narHash": "sha256-UidSqLpXjFlbZ8ns32ff4LaQIWNd1jHnYXdu8nNOkoo=",
+        "owner": "tom-lubenow",
+        "repo": "nixnative",
+        "rev": "8b79a2918841e5b210bd07998308cd2241c459c6",
+        "type": "github"
       },
       "original": {
-        "path": "/home/tom/git/nixnative",
-        "type": "path"
+        "owner": "tom-lubenow",
+        "repo": "nixnative",
+        "type": "github"
       }
     },
     "nixpkgs": {
